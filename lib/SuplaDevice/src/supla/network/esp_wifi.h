@@ -21,6 +21,7 @@
 
 #ifdef ARDUINO_ARCH_ESP8266
 #include <ESP8266WiFi.h>
+#include "ESP8266HTTPClient.h"
 #else
 #include <WiFi.h>
 #endif
@@ -50,6 +51,9 @@ class ESPWifi : public Supla::Network {
     enableSSL(false);  // ESP32 WiFiClientSecure does not suport "setInsecure"
 #endif
   }
+
+  String pub_ip_str;
+  bool ip_type_toogle = false;
 
   int read(void *buf, int count) {
     _supla_int_t size = client->available();
@@ -237,7 +241,28 @@ class ESPWifi : public Supla::Network {
                            SUPLA_CHANNELSTATE_FIELD_MAC |
                            SUPLA_CHANNELSTATE_FIELD_WIFIRSSI |
                            SUPLA_CHANNELSTATE_FIELD_WIFISIGNALSTRENGTH;
-    channelState.IPv4 = WiFi.localIP();
+
+    if (ip_type_toogle) {
+      WiFiClient pub_ip_client;
+      HTTPClient http;
+      http.begin(pub_ip_client, "http://ifconfig.me/ip");
+      int httpCode = http.GET();
+      if (httpCode > 0) {
+        if (httpCode == HTTP_CODE_OK) {
+          pub_ip_str = http.getString();
+        }
+      } else {
+        http.end();
+        pub_ip_str = "1.2.3.4";
+      }
+      http.end();
+      IPAddress pub_IP;
+      pub_IP.fromString(pub_ip_str);
+      channelState.IPv4 = pub_IP;
+    } else {
+      channelState.IPv4 = WiFi.localIP();
+    }
+	ip_type_toogle = !ip_type_toogle;
     WiFi.macAddress(channelState.MAC);
     int rssi = WiFi.RSSI();
     channelState.WiFiRSSI = rssi;
