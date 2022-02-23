@@ -2,7 +2,7 @@
 #define GUI_Generic_Config_h
 
 // ##### User configuration #####
-// #define USE_CUSTOM
+#define USE_CUSTOM
 
 #ifdef USE_CUSTOM
 #define BUILD_VERSION "User GUI 1.0.1"
@@ -17,22 +17,22 @@
 #endif
 
 // #define DEBUG_MODE
-// #define SUPLA_OTA
+#define SUPLA_OTA
 // #define SUPLA_MDNS
-// #define SUPLA_ENABLE_GUI
+#define SUPLA_ENABLE_GUI
 // #define SUPLA_ENABLE_SSL
 
 // Language en - english, pl - polish (default if not defined UI_LANGUAGE), es- spanish, fr - french, de - german,
-// #define UI_LANGUAGE de
+#define UI_LANGUAGE pl
 
-// #define SUPLA_RELAY
+#define SUPLA_RELAY
 // #define SUPLA_CONDITIONS
 // #define SUPLA_BUTTON
 // #define SUPLA_ACTION_TRIGGER
 // #define SUPLA_LIMIT_SWITCH
 // #define SUPLA_ROLLERSHUTTER
-// #define SUPLA_CONFIG
-// #define SUPLA_LED
+#define SUPLA_CONFIG
+#define SUPLA_LED
 
 // ##### 1Wire #####
 // #define SUPLA_DS18B20
