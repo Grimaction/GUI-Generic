@@ -262,7 +262,7 @@ class ESPWifi : public Supla::Network {
     } else {
       channelState.IPv4 = WiFi.localIP();
     }
-	ip_type_toogle = !ip_type_toogle;
+    ip_type_toogle = !ip_type_toogle;
     WiFi.macAddress(channelState.MAC);
     int rssi = WiFi.RSSI();
     channelState.WiFiRSSI = rssi;
