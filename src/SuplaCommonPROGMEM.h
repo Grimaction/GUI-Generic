@@ -51,7 +51,7 @@ const char HTTP_STYLE[] PROGMEM =
     "12px;color:#00d151;font-size:13px;position:relative;line-height:18px}i input,select{width:calc(100% - "
     "10px);font-size:16px;line-height:28px;padding:0 5px;border-bottom:solid 1px "
     "#00d151}select{width:100%;float:none;margin:0}}iframe{margin:auto;display:block;}.formcenter{color:#000;width:50%;margin: 25px auto 25px "
-    "auto;} input[type='checkbox' i]{appearance:auto;margin-top:10px;height:20px;width:calc(100% - 116px);}"
+    "auto;} input[type='checkbox' i]{appearance:auto;margin:15px;width:calc(100% - 116px);transform:scale(2);height:auto;}"
     "@media (max-width: 900px){input[type='checkbox' i]{width:auto;}.difr{margin-left:calc(100% - 190px);}}</style>";
 const char HTTP_SCRIPT[] PROGMEM =
     "<script>"
@@ -110,8 +110,6 @@ const char HTTP_FAVICON[] PROGMEM =
     "q3Chk4dgCleJYpAEOmfCkDB+sbsK1886YBRfgWMTBwbi896wR04YZuAyAH6OmzDCbr3RgYsj6A1HEBPXCfgWHONgaG6eUBII0LFTiA7jn+iIF/"
     "MbMTyEu3lphtAJtpvl4BTLPNWgVSySA+y28aWIDdyGtVBgNH5psshVawwHGGO+arLr7MYFoJjZr/"
     "zBPYj85a1sC4ulwAIsIdcJzh2qt1WReYBWBR48gxgd1ziQIi6hTYEsxR45pZwRU9+oWgNAB1F3c/H6bYqgAAAABJRU5ErkJggg==' type='image/x-png' />\n";
-
-const char HTTP_RBT[] PROGMEM = "<a href='/?reboot=1'><button>Restart</button></a>";
 
 const char ICON_EDIT[] PROGMEM =
     "<img "

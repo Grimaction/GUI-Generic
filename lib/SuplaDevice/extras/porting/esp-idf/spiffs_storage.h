@@ -14,30 +14,29 @@
  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#ifndef _maxThermocouple_k_h
-#define _maxThermocouple_k_h
+#ifndef _supla_spiffs_storage_h
+#define _supla_spiffs_storage_h
 
-#include <Arduino.h>
-#include <supla/sensor/thermometer.h>
+#include <supla/storage/storage.h>
 
 namespace Supla {
-namespace Sensor {
-class MAXThermocouple : public Thermometer {
- public:
-  MAXThermocouple(uint8_t pin_CLK, uint8_t pin_CS, uint8_t pin_DO);
-  double getValue();
 
- private:
-  void onInit();
-  uint32_t spiRead(void);
+class SpiffsStorage : public Storage {
+ public:
+  SpiffsStorage(uint32_t size = 512);
+  virtual ~SpiffsStorage();
+  bool init();
+  void commit();
 
  protected:
-  int8_t pin_CLK;
-  int8_t pin_CS;
-  int8_t pin_DO;
+  int readStorage(unsigned int, unsigned char *, int, bool);
+  int writeStorage(unsigned int, const unsigned char *, int);
+
+  bool dataChanged = false;
+  char *buffer = nullptr;
+  uint32_t bufferSize = 0;
 };
 
-};  // namespace Sensor
 };  // namespace Supla
 
 #endif
