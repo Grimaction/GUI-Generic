@@ -463,6 +463,15 @@ int SuplaConfigESP::checkBusyGpio(int gpio, int function) {
   }
 }
 
+bool SuplaConfigESP::checkBusyGpio(int gpio) {
+  uint8_t key = KEY_GPIO + gpio;
+  if (ConfigManager->get(key)->getElement(FUNCTION).toInt() != FUNCTION_OFF) {
+    return true;
+  }
+  
+  return false;
+}
+
 void SuplaConfigESP::setLevel(uint8_t gpio, int level) {
   ConfigManager->setElement(getKeyGpio(gpio), LEVEL_RELAY, level);
 }
