@@ -42,19 +42,15 @@ void setup() {
 
   Serial.begin(74880);
 
-  for (uint8_t t = 4; t > 0; t--) {
-    Serial.printf("[SETUP] WAIT %d...\n", t);
-    Serial.flush();
-    delay(250);
-  }
-
 #ifdef ARDUINO_ARCH_ESP8266
   ESP.wdtDisable();
 #endif
 
   ConfigManager = new SuplaConfigManager();
   ConfigESP = new SuplaConfigESP();
-  new ImprovSerialComponent();
+  if (!ConfigESP->checkBusyGpio(3)) {  // GPIO_RX
+    new ImprovSerialComponent();
+  }
 
 #if defined(SUPLA_RELAY) || defined(SUPLA_ROLLERSHUTTER)
   uint8_t rollershutters = ConfigManager->get(KEY_MAX_ROLLERSHUTTER)->getValueInt();
