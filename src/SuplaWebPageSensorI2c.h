@@ -19,9 +19,14 @@
 
 #include "SuplaDeviceGUI.h"
 
-#if defined(SUPLA_BME280) || defined(SUPLA_SHT3x) || defined(SUPLA_SI7021) || defined(SUPLA_OLED) || defined(SUPLA_MCP23017) || \
-    defined(SUPLA_BMP280) || defined(SUPLA_VL53L0X) || defined(SUPLA_HDC1080) || defined(SUPLA_LCD_HD44780) || defined(SUPLA_BH1750)
+#if defined(SUPLA_BME280) || defined(SUPLA_SHT3x) || defined(SUPLA_SI7021) || defined(SUPLA_OLED) || defined(SUPLA_MCP23017) ||         \
+    defined(SUPLA_BMP280) || defined(SUPLA_VL53L0X) || defined(SUPLA_HDC1080) || defined(SUPLA_LCD_HD44780) || defined(SUPLA_BH1750) || \
+    defined(SUPLA_MAX44009) || defined(SUPLA_SHT_AUTODETECT)
 #define GUI_SENSOR_I2C
+#endif
+
+#if defined(SUPLA_ADE7953)
+#define GUI_SENSOR_I2C_ENERGY_METER
 #endif
 
 enum _sensor
@@ -37,10 +42,12 @@ enum _sensor
   SENSOR_I2C_HDC1080,
   SENSOR_I2C_HD44780,
   SENSOR_SPI_MAX31855,
-  SENSOR_I2C_BH1750
+  SENSOR_I2C_BH1750,
+  SENSOR_I2C_MAX44009,
+  SENSOR_I2C_PCF8575
 };
 
-#ifdef GUI_SENSOR_I2C
+#if defined(GUI_SENSOR_I2C) || defined(GUI_SENSOR_I2C_ENERGY_METER)
 
 #if defined(SUPLA_BME280) || defined(SUPLA_BMP280)
 enum _bmeAdress
@@ -84,8 +91,14 @@ enum _LCDAdress
 
 #define INPUT_SDA_GPIO "sdag"
 #define INPUT_SCL_GPIO "sclg"
-#define INPUT_SHT3x    "sht30"
-#define INPUT_SI7021   "si7021"
+
+#ifdef SUPLA_SHT3x
+#define INPUT_SHT3x "sht30"
+#endif
+
+#ifdef SUPLA_SI7021
+#define INPUT_SI7021 "si7021"
+#endif
 
 #if defined(SUPLA_OLED) || defined(SUPLA_LCD_HD44780)
 #define INPUT_OLED                 "oled"
@@ -99,8 +112,6 @@ enum _LCDAdress
 #define INPUT_BUTTON_GPIO "btg"
 #endif
 #endif
-
-#define INPUT_MCP23017 "mcp"
 
 void createWebPageSensorI2c();
 void handleSensorI2c(int save = 0);
@@ -116,6 +127,27 @@ void handleSensorI2cSave();
 
 #ifdef SUPLA_BH1750
 #define INPUT_BH1750 "ibh"
+#endif
+
+#ifdef SUPLA_MAX44009
+#define INPUT_MAX44009 "imax"
+#endif
+
+#ifdef SUPLA_ADE7953
+#define INPUT_ADE7953_IRQ           "iai"
+#define INPUT_ADE7953_COUNTER_VALUE "iacv"
+#endif
+
+#ifdef SUPLA_MCP23017
+#define INPUT_MCP23017 "imcp"
+#endif
+
+#ifdef SUPLA_PCF8575
+#define INPUT_PCF8575 "ipcf"
+#endif
+
+#ifdef SUPLA_SHT_AUTODETECT
+#define INPUT_SUPLA_SHT_AUTODETECT "issa"
 #endif
 
 #endif

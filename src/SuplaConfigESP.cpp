@@ -154,8 +154,8 @@ void SuplaConfigESP::configModeInit(WiFiMode_t m) {
   APConfigured = false;
   ledBlinking(100);
 
-  Supla::GUI::enableWifiSSL(false);
-  Supla::GUI::setupWifi();
+  Supla::GUI::enableConnectionSSL(false);
+  Supla::GUI::setupConnection();
   WiFi.mode(m);
 
   Serial.print(F("Config Mode started: "));
@@ -343,21 +343,22 @@ int SuplaConfigESP::getGpio(int nr, int function) {
 
   for (uint8_t gpio = 0; gpio <= OFF_GPIO; gpio++) {
     uint8_t key = KEY_GPIO + gpio;
+
     if (function == FUNCTION_CFG_BUTTON) {
       if (checkBusyCfg(gpio)) {
         return gpio;
       }
     }
-    if (ConfigManager->get(key)->getElement(FUNCTION).toInt() == function) {
-      if (ConfigManager->get(key)->getElement(NR).toInt() == (nr + 1)) {
-        return gpio;
-      }
+
+    if (ConfigManager->get(key)->getElement(FUNCTION).toInt() == function && ConfigManager->get(key)->getElement(NR).toInt() == (nr + 1)) {
+      return gpio;
     }
     // return OFF_GPIO;
     //"Pin 100 - 115"
     // Pin 116 - 131"
 #ifdef SUPLA_MCP23017
-    if (ConfigManager->get(KEY_ACTIVE_SENSOR)->getElement(SENSOR_I2C_MCP23017).toInt() != FUNCTION_OFF &&
+    if ((ConfigManager->get(KEY_ACTIVE_SENSOR)->getElement(SENSOR_I2C_MCP23017).toInt() != FUNCTION_OFF ||
+         ConfigManager->get(KEY_ACTIVE_SENSOR)->getElement(SENSOR_I2C_PCF8575).toInt() != FUNCTION_OFF) &&
         ((function == FUNCTION_RELAY) || (function == FUNCTION_BUTTON) || (function == FUNCTION_LIMIT_SWITCH))) {
       switch (getAdressMCP23017(nr, function)) {
         case 0:
@@ -390,6 +391,24 @@ int SuplaConfigESP::getGpio(int nr, int function) {
     delay(0);
   }
   return OFF_GPIO;
+}
+
+uint8_t SuplaConfigESP::getNumberButton(uint8_t nr) {
+#ifdef SUPLA_MCP23017
+  if (strcmp(ConfigManager->get(KEY_NUMBER_BUTTON)->getElement(nr).c_str(), "") != 0 && !ConfigESP->checkActiveMCP23017(FUNCTION_BUTTON)) {
+    return ConfigManager->get(KEY_NUMBER_BUTTON)->getElement(nr).toInt();
+  }
+  else {
+    return nr;
+  }
+#else
+  if (strcmp(ConfigManager->get(KEY_NUMBER_BUTTON)->getElement(nr).c_str(), "") != 0) {
+    return ConfigManager->get(KEY_NUMBER_BUTTON)->getElement(nr).toInt();
+  }
+  else {
+    return nr;
+  }
+#endif
 }
 
 uint8_t SuplaConfigESP::getKeyGpio(uint8_t gpio) {
@@ -468,7 +487,7 @@ bool SuplaConfigESP::checkBusyGpio(int gpio) {
   if (ConfigManager->get(key)->getElement(FUNCTION).toInt() != FUNCTION_OFF) {
     return true;
   }
-  
+
   return false;
 }
 
@@ -565,6 +584,10 @@ uint8_t SuplaConfigESP::countFreeGpio(uint8_t exception) {
     }
     delay(0);
   }
+
+  if (exception == FUNCTION_RELAY)
+    count = count + MAX_VIRTUAL_RELAY;
+
   return count;
 }
 
@@ -703,7 +726,8 @@ void SuplaConfigESP::clearFunctionGpio(uint8_t function) {
 }
 
 bool SuplaConfigESP::checkActiveMCP23017(uint8_t function) {
-  return ConfigManager->get(KEY_ACTIVE_SENSOR)->getElement(SENSOR_I2C_MCP23017).toInt() != FUNCTION_OFF &&
+  return (ConfigManager->get(KEY_ACTIVE_SENSOR)->getElement(SENSOR_I2C_MCP23017).toInt() != FUNCTION_OFF ||
+          ConfigManager->get(KEY_ACTIVE_SENSOR)->getElement(SENSOR_I2C_PCF8575).toInt() != FUNCTION_OFF) &&
          ((ConfigESP->getGpio(function) >= 100 || ConfigESP->getGpio(function) == OFF_GPIO));
 }
 

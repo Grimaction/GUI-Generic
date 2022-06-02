@@ -153,8 +153,8 @@ void SuplaWebServer::handleNotFound() {
   handlePageHome(2);
 }
 
-bool SuplaWebServer::isLoggedIn() {
-  if (ConfigESP->configModeESP == NORMAL_MODE) {
+bool SuplaWebServer::isLoggedIn(bool force) {
+  if (ConfigESP->configModeESP == NORMAL_MODE || force) {
     if (strcmp(ConfigManager->get(KEY_LOGIN)->getValue(), "") != 0 && strcmp(ConfigManager->get(KEY_LOGIN_PASS)->getValue(), "") != 0 &&
         !httpServer->authenticate(ConfigManager->get(KEY_LOGIN)->getValue(), ConfigManager->get(KEY_LOGIN_PASS)->getValue())) {
       httpServer->requestAuthentication();
@@ -240,7 +240,7 @@ bool SuplaWebServer::saveGPIO(const String& _input, uint8_t function, uint8_t nr
       if (gpio == GPIO_VIRTUAL_RELAY) {
         ConfigManager->setElement(KEY_VIRTUAL_RELAY, nr, false);
       }
-      if (function == FUNCTION_RELAY)
+      if (function == FUNCTION_BUTTON)
         ConfigManager->setElement(KEY_NUMBER_BUTTON, nr, nr);
 
 #ifdef SUPLA_ROLLERSHUTTER

@@ -37,11 +37,25 @@ GUIESPWifi::GUIESPWifi(const char *wifiSsid, const char *wifiPassword) : ESPWifi
         Serial.print(rssi);
         Serial.println(F(" dBm"));
       },
+#if defined(ESP_ARDUINO_VERSION)
+#if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(2, 0, 0)
       WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_GOT_IP);
+#endif
+#else
+      WiFiEvent_t::SYSTEM_EVENT_STA_GOT_IP);
+#endif
+
   (void)(event_gotIP);
 
   WiFiEventId_t event_disconnected = WiFi.onEvent([](WiFiEvent_t event, WiFiEventInfo_t info) { Serial.println(F("wifi Station disconnected")); },
+
+#if defined(ESP_ARDUINO_VERSION)
+#if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(2, 0, 0)
                                                   WiFiEvent_t::ARDUINO_EVENT_WIFI_AP_STADISCONNECTED);
+#endif
+#else
+                                                  WiFiEvent_t::SYSTEM_EVENT_STA_DISCONNECTED);
+#endif
   (void)(event_disconnected);
 #endif
 }
@@ -63,7 +77,7 @@ int GUIESPWifi::connect(const char *server, int port) {
       client = clientSec;
 
 #ifdef ARDUINO_ARCH_ESP8266
-      clientSec->setBufferSizes(2048, 512);  // EXPERIMENTAL
+      clientSec->setBufferSizes(1024, 512);  // EXPERIMENTAL
       if (fingerprint.length() > 0) {
         message += " with certificate matching";
         clientSec->setFingerprint(fingerprint.c_str());
@@ -103,6 +117,7 @@ void GUIESPWifi::setup() {
 
     WiFi.softAPdisconnect(true);
     WiFi.disconnect(true);
+    WiFi.persistent(false);
     WiFi.reconnect();
 
     if (ConfigESP->configModeESP == NORMAL_MODE) {

@@ -108,7 +108,7 @@ void handleRelay(int save) {
 
   addForm(webContentBuffer, F("post"), PATH_RELAY);
   addFormHeader(webContentBuffer, S_GPIO_SETTINGS_FOR_RELAYS);
-  addNumberBox(webContentBuffer, INPUT_MAX_RELAY, S_QUANTITY, KEY_MAX_RELAY, ConfigESP->countFreeGpio(FUNCTION_RELAY) + MAX_VIRTUAL_RELAY);
+  addNumberBox(webContentBuffer, INPUT_MAX_RELAY, S_QUANTITY, KEY_MAX_RELAY, ConfigESP->countFreeGpio(FUNCTION_RELAY));
 
   for (nr = 0; nr < ConfigManager->get(KEY_MAX_RELAY)->getValueInt(); nr++) {
 #ifdef SUPLA_MCP23017
@@ -140,9 +140,6 @@ void handleRelaySaveSet() {
   nr_relay = WebServer->httpServer->arg(ARG_PARM_NUMBER);
 
   gpio = ConfigESP->getGpio(nr_relay.toInt(), FUNCTION_RELAY);
-
-  input = INPUT_BUTTON_NUMBER;
-  ConfigManager->setElement(KEY_NUMBER_BUTTON, nr_relay.toInt(), WebServer->httpServer->arg(input).toInt());
 
   input = INPUT_RELAY_MEMORY;
   input += nr_relay;
@@ -244,9 +241,6 @@ void handleRelaySet(int save) {
 
     addForm(webContentBuffer, F("post"), getParameterRequest(PATH_RELAY_SET, ARG_PARM_NUMBER, nr_relay));
     addFormHeader(webContentBuffer, String(S_RELAY_NR_SETTINGS) + (nr_relay.toInt() + 1));
-
-    selected = ConfigManager->get(KEY_NUMBER_BUTTON)->getElement(nr_relay.toInt()).toInt();
-    addListBox(webContentBuffer, INPUT_BUTTON_NUMBER, S_NUMBER, NUMBER_P, 10, selected);
 
     if (gpio != GPIO_VIRTUAL_RELAY) {
       selected = ConfigESP->getLevel(gpio);
@@ -471,7 +465,7 @@ void conditionsWebPage(int nr) {
     addListBox(webContentBuffer, INPUT_CONDITIONS_SENSOR_TYPE, S_TYPE, SENSOR_LIST_P, COUNT_SENSOR_LIST, selected);
 
     selected = ConfigManager->get(KEY_CONDITIONS_SENSOR_NUMBER)->getElement(nr).toInt();
-    addListBox(webContentBuffer, INPUT_CONDITIONS_SENSOR_NUMBER, S_SENSOR, NUMBER_P, 10, selected);
+    addListNumbersBox(webContentBuffer, INPUT_CONDITIONS_SENSOR_NUMBER, S_SENSOR, 20, selected);
 
     selected = ConfigManager->get(KEY_CONDITIONS_TYPE)->getElement(nr).toInt();
     addListBox(webContentBuffer, INPUT_CONDITIONS_TYPE, S_CONDITION, CONDITIONS_TYPE_P, CONDITION_COUNT, selected);

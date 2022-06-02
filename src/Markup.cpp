@@ -131,6 +131,12 @@ void addTextBox(
   return addTextBox(html, input_id, name, value, "", minlength, maxlength, required, readonly, false);
 }
 
+void addTextBox(String& html, const String& value) {
+  html += F("<style><input[name='board']{padding-left: 48px;width: calc(100% - 52px);}</style>");
+  html += F("<p style='color:#000;'>");
+  html += value;
+  html += F("</p>");
+}
 void addTextBoxPassword(String& html, const String& input_id, const String& name, uint8_t value_key, int minlength, int maxlength, bool required) {
   return addTextBox(html, input_id, name, value_key, "", minlength, maxlength, required, false, true);
 }
@@ -267,8 +273,8 @@ void addListGPIOBox(
   html += nr;
   html += F("'>");
 
-  if (function == FUNCTION_RELAY)
-    addGPIOOptionValue(html, GPIO_VIRTUAL_RELAY, gpio, S_SPACE "VIRTUAL");
+  if (function == FUNCTION_RELAY && nr < MAX_VIRTUAL_RELAY)
+    addGPIOOptionValue(html, GPIO_VIRTUAL_RELAY, gpio, String(S_SPACE) + "VIRTUAL");
 
 #ifdef ARDUINO_ARCH_ESP8266
   for (uint8_t suported = 0; suported <= OFF_GPIO; suported++)
@@ -313,16 +319,16 @@ void addListMCP23017GPIOBox(String& html, const String& input_id, const String& 
   if (nr == 0) {
     address = ConfigESP->getAdressMCP23017(nr, function);
     if (url != "")
-      addListLinkBox(html, String(INPUT_ADRESS_MCP23017) + nr, F("MCP23017 Adres 1"), MCP23017_P, 5, address, url);
+      addListLinkBox(html, String(INPUT_ADRESS_MCP23017) + nr, String(S_ADDRESS) + S_SPACE + 1, MCP23017_P, 5, address, url);
     else
-      addListBox(html, String(INPUT_ADRESS_MCP23017) + nr, F("MCP23017 Adres 1"), MCP23017_P, 5, address);
+      addListBox(html, String(INPUT_ADRESS_MCP23017) + nr, String(S_ADDRESS) + S_SPACE + 1, MCP23017_P, 5, address);
   }
   if (nr == 16) {
     address = ConfigESP->getAdressMCP23017(nr, function);
     if (url != "")
-      addListLinkBox(html, String(INPUT_ADRESS_MCP23017) + nr, F("MCP23017 Adres 2"), MCP23017_P, 5, address, url);
+      addListLinkBox(html, String(INPUT_ADRESS_MCP23017) + nr, String(S_ADDRESS) + S_SPACE + 2, MCP23017_P, 5, address, url);
     else
-      addListBox(html, String(INPUT_ADRESS_MCP23017) + nr, F("MCP23017 Adres 2"), MCP23017_P, 5, address);
+      addListBox(html, String(INPUT_ADRESS_MCP23017) + nr, String(S_ADDRESS) + S_SPACE + 2, MCP23017_P, 5, address);
   }
 
   html += F("<i><label>");
@@ -408,6 +414,27 @@ void addListBox(String& html, const String& input_id, const String& name, const 
       html += FPSTR(array_P[suported]);
       WebServer->sendHeader();
     }
+  }
+  html += F("</select></i>");
+}
+
+void addListNumbersBox(String& html, const String& input_id, const String& name, uint8_t size, uint8_t selected) {
+  html += F("<i><label>");
+  html += name;
+  html += "</label><select name='";
+  html += input_id;
+  html += F("'>");
+
+  for (uint8_t suported = 0; suported < size; suported++) {
+    html += F("<option value='");
+    html += suported;
+    html += F("'");
+    if (selected == suported) {
+      html += F(" selected");
+    }
+    html += F(">");
+    html += (suported + 1);
+    WebServer->sendHeader();
   }
   html += F("</select></i>");
 }

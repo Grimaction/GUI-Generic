@@ -42,15 +42,8 @@ void setup() {
 
   Serial.begin(74880);
 
-#ifdef ARDUINO_ARCH_ESP8266
-  ESP.wdtDisable();
-#endif
-
   ConfigManager = new SuplaConfigManager();
   ConfigESP = new SuplaConfigESP();
-  if (!ConfigESP->checkBusyGpio(3)) {  // GPIO_RX
-    new ImprovSerialComponent();
-  }
 
 #if defined(SUPLA_RELAY) || defined(SUPLA_ROLLERSHUTTER)
   uint8_t rollershutters = ConfigManager->get(KEY_MAX_ROLLERSHUTTER)->getValueInt();
@@ -82,6 +75,10 @@ void setup() {
       Supla::GUI::addRelay(nr);
 #endif
 
+#ifdef SUPLA_BUTTON
+      Supla::GUI::addButtonToRelay(nr);
+#endif
+
 #endif
 
 #ifdef SUPLA_RF_BRIDGE
@@ -102,6 +99,7 @@ void setup() {
       Supla::GUI::addDirectLinks(nr);
 #endif
     }
+    delay(0);
   }
 #endif
 
@@ -249,6 +247,34 @@ void setup() {
 #endif
 #endif
 
+#ifdef SUPLA_VINDRIKTNING_IKEA
+  if (ConfigESP->getGpio(FUNCTION_VINDRIKTNING_IKEA) != OFF_GPIO) {
+    auto vindriktningIkea = new Supla::Sensor::VindriktningIkea(ConfigESP->getGpio(FUNCTION_VINDRIKTNING_IKEA));
+    Supla::GUI::addConditionsTurnON(SENSOR_VINDRIKTNING_IKEA, vindriktningIkea);
+    Supla::GUI::addConditionsTurnOFF(SENSOR_VINDRIKTNING_IKEA, vindriktningIkea);
+  }
+#endif
+
+#ifdef SUPLA_PMSX003
+  if (ConfigESP->getGpio(FUNCTION_PMSX003_RX) != OFF_GPIO) {
+    Supla::Sensor::PMSx003 *pms;
+
+    if (ConfigESP->getGpio(FUNCTION_PMSX003_TX) != OFF_GPIO) {
+      pms = new Supla::Sensor::PMSx003(ConfigESP->getGpio(FUNCTION_PMSX003_RX), ConfigESP->getGpio(FUNCTION_PMSX003_TX));
+    }
+    else {
+      pms = new Supla::Sensor::PMSx003(ConfigESP->getGpio(FUNCTION_PMSX003_RX));
+    }
+
+    new Supla::Sensor::PMS_PM01(pms);
+    auto pmsPM25 = new Supla::Sensor::PMS_PM25(pms);
+    new Supla::Sensor::PMS_PM10(pms);
+
+    Supla::GUI::addConditionsTurnON(SENSOR_PMSX003, pmsPM25);
+    Supla::GUI::addConditionsTurnOFF(SENSOR_PMSX003, pmsPM25);
+  }
+#endif
+
 #ifdef SUPLA_RGBW
   for (nr = 0; nr < ConfigManager->get(KEY_MAX_RGBW)->getValueInt(); nr++) {
     Supla::GUI::addRGBWLeds(nr);
@@ -256,16 +282,11 @@ void setup() {
 #endif
 
 #ifdef SUPLA_IMPULSE_COUNTER
-  if (ConfigManager->get(KEY_MAX_IMPULSE_COUNTER)->getValueInt() > 0) {
-    for (nr = 0; nr < ConfigManager->get(KEY_MAX_IMPULSE_COUNTER)->getValueInt(); nr++) {
-      gpio = ConfigESP->getGpio(nr, FUNCTION_IMPULSE_COUNTER);
-      if (gpio != OFF_GPIO) {
-        Supla::GUI::addImpulseCounter(gpio, ConfigESP->getLevel(gpio), ConfigESP->getMemory(gpio),
-                                      ConfigManager->get(KEY_IMPULSE_COUNTER_DEBOUNCE_TIMEOUT)->getValueInt());
-      }
+  for (nr = 0; nr < ConfigManager->get(KEY_MAX_IMPULSE_COUNTER)->getValueInt(); nr++) {
+    if (ConfigESP->getGpio(nr, FUNCTION_IMPULSE_COUNTER) != OFF_GPIO) {
+      Supla::GUI::addImpulseCounter(nr);
     }
   }
-
 #endif
 
 #ifdef SUPLA_HLW8012
@@ -317,7 +338,7 @@ void setup() {
   }
 #endif
 
-#ifdef GUI_SENSOR_I2C
+#if defined(GUI_SENSOR_I2C) || defined(GUI_SENSOR_I2C_ENERGY_METER)
   if (ConfigESP->getGpio(FUNCTION_SDA) != OFF_GPIO && ConfigESP->getGpio(FUNCTION_SCL) != OFF_GPIO) {
     Wire.begin(ConfigESP->getGpio(FUNCTION_SDA), ConfigESP->getGpio(FUNCTION_SCL));
 
@@ -372,30 +393,35 @@ void setup() {
 #endif
 
 #ifdef SUPLA_SHT3x
-
     if (ConfigManager->get(KEY_ACTIVE_SENSOR)->getElement(SENSOR_I2C_SHT3x).toInt()) {
       Supla::Sensor::SHT3x *sht3x;
+
       switch (ConfigManager->get(KEY_ACTIVE_SENSOR)->getElement(SENSOR_I2C_SHT3x).toInt()) {
         case SHT3x_ADDRESS_0X44:
           sht3x = new Supla::Sensor::SHT3x(0x44);
-
-          Supla::GUI::addConditionsTurnON(SENSOR_SHT3x, sht3x);
-          Supla::GUI::addConditionsTurnOFF(SENSOR_SHT3x, sht3x);
           break;
         case SHT3x_ADDRESS_0X45:
           sht3x = new Supla::Sensor::SHT3x(0x45);
-
-          Supla::GUI::addConditionsTurnON(SENSOR_SHT3x, sht3x);
-          Supla::GUI::addConditionsTurnOFF(SENSOR_SHT3x, sht3x);
           break;
         case SHT3x_ADDRESS_0X44_AND_0X45:
           sht3x = new Supla::Sensor::SHT3x(0x44);
           new Supla::Sensor::SHT3x(0x45);
-
-          Supla::GUI::addConditionsTurnON(SENSOR_SHT3x, sht3x);
-          Supla::GUI::addConditionsTurnOFF(SENSOR_SHT3x, sht3x);
           break;
       }
+
+      if (sht3x) {
+        Supla::GUI::addConditionsTurnON(SENSOR_SHT3x, sht3x);
+        Supla::GUI::addConditionsTurnOFF(SENSOR_SHT3x, sht3x);
+      }
+    }
+#endif
+
+#ifdef SUPLA_SHT_AUTODETECT
+    if (ConfigManager->get(KEY_ACTIVE_SENSOR)->getElement(SENSOR_I2C_SHT3x).toInt()) {
+      Supla::Sensor::SHTAutoDetect *shtAutoDetect = new Supla::Sensor::SHTAutoDetect();
+
+      Supla::GUI::addConditionsTurnON(SENSOR_SHT3x, shtAutoDetect);
+      Supla::GUI::addConditionsTurnOFF(SENSOR_SHT3x, shtAutoDetect);
     }
 #endif
 
@@ -429,10 +455,18 @@ void setup() {
     }
 #endif
 
+#ifdef SUPLA_MAX44009
+    if (ConfigManager->get(KEY_ACTIVE_SENSOR)->getElement(SENSOR_I2C_MAX44009).toInt()) {
+      new Supla::Sensor::MAX_44009();
+    }
+#endif
+
 #ifdef SUPLA_OLED
     if (ConfigManager->get(KEY_ACTIVE_SENSOR)->getElement(SENSOR_I2C_OLED).toInt()) {
       SuplaOled *oled = new SuplaOled();
+#ifdef SUPLA_BUTTON
       oled->addButtonOled(ConfigESP->getGpio(FUNCTION_BUTTON));
+#endif
     }
 #endif
 
@@ -497,7 +531,18 @@ void setup() {
     }
 #endif
 
-#ifdef SUPLA_MCP23017
+#ifdef SUPLA_ADE7953
+    if (ConfigESP->getGpio(FUNCTION_ADE7953_IRQ) != OFF_GPIO) {
+      Supla::GUI::addADE7953(ConfigESP->getGpio(FUNCTION_ADE7953_IRQ));
+    }
+#endif
+
+#ifdef SUPLA_PCF8575
+    if (ConfigManager->get(KEY_ACTIVE_SENSOR)->getElement(SENSOR_I2C_PCF8575).toInt()) {
+      Supla::Control::PCF_8575 *mcp = new Supla::Control::PCF_8575();
+      // Wire.setClock(400000);
+    }
+#elif SUPLA_MCP23017
     if (ConfigManager->get(KEY_ACTIVE_SENSOR)->getElement(SENSOR_I2C_MCP23017).toInt()) {
       Supla::Control::MCP_23017 *mcp = new Supla::Control::MCP_23017();
 
@@ -506,14 +551,15 @@ void setup() {
         if (gpio != OFF_GPIO)
           mcp->setPullup(gpio, ConfigESP->getPullUp(gpio), false);
       }
-
-#ifdef ARDUINO_ARCH_ESP8266
       Wire.setClock(400000);
-#elif ARDUINO_ARCH_ESP32
-      Wire.setClock(100000);
-#endif
     }
 #endif
+  }
+#endif
+
+#ifdef SUPLA_ACTION_TRIGGER
+  for (nr = 0; nr < ConfigManager->get(KEY_MAX_BUTTON)->getValueInt(); nr++) {
+    Supla::GUI::addButtonActionTrigger(nr);
   }
 #endif
 
@@ -524,12 +570,6 @@ void setup() {
 #ifdef SUPLA_DEEP_SLEEP
   if (ConfigManager->get(KEY_DEEP_SLEEP_TIME)->getValueInt() > 0) {
     new Supla::Control::DeepSleep(ConfigManager->get(KEY_DEEP_SLEEP_TIME)->getValueInt() * 60, 30);
-  }
-#endif
-
-#ifdef SUPLA_ACTION_TRIGGER
-  for (nr = 0; nr < ConfigManager->get(KEY_MAX_BUTTON)->getValueInt(); nr++) {
-    Supla::GUI::addButtonActionTrigger(nr);
   }
 #endif
 
@@ -558,12 +598,14 @@ void setup() {
 #ifdef ARDUINO_ARCH_ESP8266
   // https://github.com/esp8266/Arduino/issues/2070#issuecomment-258660760
   wifi_set_sleep_type(NONE_SLEEP_T);
-
-  ESP.wdtEnable(WDTO_250MS);
 #endif
+
+  if (!ConfigESP->checkBusyGpio(3)) {  // GPIO_RX
+    new ImprovSerialComponent();
+  }
 }
 
 void loop() {
   SuplaDevice.iterate();
-  delay(25);
+  // delay(25);
 }

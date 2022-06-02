@@ -19,12 +19,16 @@
 
 #include "SuplaDeviceGUI.h"
 
-#if defined(SUPLA_HC_SR04)
+#if defined(SUPLA_HC_SR04) || defined(SUPLA_DIRECT_LINKS_SENSOR_THERMOMETR) || defined(SUPLA_VINDRIKTNING_IKEA) || defined(SUPLA_PMSX003)
 #define GUI_SENSOR_OTHER
 #endif
 
-#if defined(SUPLA_IMPULSE_COUNTER) || defined(SUPLA_HLW8012) || defined(SUPLA_PZEM_V_3) || defined(SUPLA_RGBW) || defined(SUPLA_PUSHOVER) || \
-    defined(GUI_SENSOR_OTHER) || defined(SUPLA_CSE7766) || defined(SUPLA_DIRECT_LINKS_SENSOR_THERMOMETR) || defined(SUPLA_RF_BRIDGE)
+#if defined(SUPLA_HLW8012) || defined(SUPLA_PZEM_V_3) || defined(SUPLA_CSE7766)
+#define GUI_OTHER_ENERGY
+#endif
+
+#if defined(GUI_SENSOR_OTHER) || defined(GUI_OTHER_ENERGY) || defined(SUPLA_IMPULSE_COUNTER) || defined(SUPLA_RGBW) || defined(SUPLA_PUSHOVER) || \
+    defined(SUPLA_RF_BRIDGE)
 #define GUI_OTHER
 #endif
 
@@ -43,6 +47,8 @@ void handleOtherSave();
 #define INPUT_IMPULSE_COUNTER_RAISING_EDGE     "icre"
 #define INPUT_IMPULSE_COUNTER_CHANGE_VALUE     "iccv"
 #define INPUT_MAX_IMPULSE_COUNTER              "imic"
+#define INPUT_LED_IMPULSE_COUNTER              "ilic"
+#define INPUT_LED_INVERSED_IMPULSE_COUNTER     "iliic"
 
 void handleImpulseCounterSet(int save = 0);
 void handleImpulseCounterSaveSet();
@@ -77,6 +83,15 @@ void handleCounterCalibrateSave();
 #ifdef SUPLA_PZEM_V_3
 #define INPUT_PZEM_RX "iprx"
 #define INPUT_PZEM_TX "iptx"
+#endif
+
+#ifdef SUPLA_VINDRIKTNING_IKEA
+#define INPUT_VINDRIKTNING_IKEA_RX "ivirx"
+#endif
+
+#ifdef SUPLA_PMSX003
+#define INPUT_PMSX003_RX "iprx"
+#define INPUT_PMSX003_TX "iptx"
 #endif
 
 #ifdef SUPLA_RGBW
@@ -117,4 +132,5 @@ void handleCounterCalibrateSave();
 
 void receiveCodeRFBridge();
 #endif
+
 #endif  // SuplaWebPageOther_h
