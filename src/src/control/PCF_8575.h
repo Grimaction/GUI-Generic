@@ -23,6 +23,9 @@
 #include <supla/io.h>
 #include <PCF8575.h>
 
+#define EXPENDER_SHIFT_PCF8575     144  // 80 + 64
+#define EXPENDER_SHIFT_PIN_PCF8575 16
+
 namespace Supla {
 namespace Control {
 class PCF_8575 : public Supla::Io {
@@ -30,8 +33,6 @@ class PCF_8575 : public Supla::Io {
   PCF_8575();
   void customDigitalWrite(int channelNumber, uint8_t pin, uint8_t val);
   int customDigitalRead(int channelNumber, uint8_t pin);
-  // void customPinMode(int channelNumber, uint8_t pin, uint8_t mode);
-  // void setPullup(uint8_t pin, bool pullup, bool inverse);
 
   PCF8575 *control1;
   PCF8575 *control2;

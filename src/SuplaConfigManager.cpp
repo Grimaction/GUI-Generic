@@ -193,7 +193,7 @@ SuplaConfigManager::SuplaConfigManager() {
 #endif
 
 #ifdef SUPLA_RELAY
-    this->addKey(KEY_MAX_RELAY, "0", 2);
+    this->addKey(KEY_MAX_RELAY, "1", 2);
     this->addKey(KEY_CONDITIONS_SENSOR_TYPE, MAX_GPIO * 2);
     this->addKey(KEY_CONDITIONS_TYPE, MAX_GPIO * 1);
     this->addKey(KEY_CONDITIONS_MIN, MAX_GPIO * 4);
@@ -226,7 +226,7 @@ SuplaConfigManager::SuplaConfigManager() {
 #endif
 
 #ifdef SUPLA_BUTTON
-    this->addKey(KEY_MAX_BUTTON, "0", 2);
+    this->addKey(KEY_MAX_BUTTON, "1", 2);
     this->addKey(KEY_ANALOG_BUTTON, 2 * MAX_ANALOG_BUTTON);
     this->addKey(KEY_ANALOG_INPUT_EXPECTED, 5 * MAX_ANALOG_BUTTON);
     this->addKey(KEY_NUMBER_BUTTON, MAX_GPIO * 2);
@@ -240,7 +240,7 @@ SuplaConfigManager::SuplaConfigManager() {
 #endif
 
 #ifdef SUPLA_LIMIT_SWITCH
-    this->addKey(KEY_MAX_LIMIT_SWITCH, "0", 2);
+    this->addKey(KEY_MAX_LIMIT_SWITCH, "1", 2);
 #else
     this->addKey(KEY_MAX_LIMIT_SWITCH, 2, false);
 #endif
@@ -402,6 +402,12 @@ SuplaConfigManager::SuplaConfigManager() {
 #endif
 
     this->addKey(KEY_FORCE_RESTART_ESP, "0", 1);
+
+#ifdef GUI_SENSOR_I2C_EXPENDER
+    this->addKey(KEY_ACTIVE_EXPENDER, 20);
+#else
+    this->addKey(KEY_ACTIVE_EXPENDER, 20, false);
+#endif
 
     //  this->addKey(KEY_VERSION_CONFIG, String(CURENT_VERSION).c_str(), 2);
 

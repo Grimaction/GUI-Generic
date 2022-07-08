@@ -16,6 +16,7 @@
 #ifndef SuplaConfigESP_h
 #define SuplaConfigESP_h
 
+#include "GUIGenericCommonDefined.h"
 #include "GUI-Generic_Config.h"
 
 #include "Arduino.h"
@@ -62,7 +63,7 @@ enum _ConfigMode
 #define OFF_GPIO MAX_GPIO + 1
 #endif
 
-#define OFF_GPIO_MCP23017    17
+#define OFF_GPIO_EXPENDER    17
 #define OFF_ADDRESS_MCP23017 4
 
 #define GPIO_VIRTUAL_RELAY 99
@@ -138,7 +139,7 @@ class SuplaConfigESP : public Supla::ActionHandler, public Supla::Element {
   void factoryReset(bool forceReset = false);
   const String getConfigNameAP();
 
-#ifdef SUPLA_MCP23017
+#ifdef GUI_SENSOR_I2C_EXPENDER
   bool checkBusyGpioMCP23017(uint8_t gpio, uint8_t nr, uint8_t function);
   uint8_t getGpioMCP23017(uint8_t nr, uint8_t function);
   uint8_t getAdressMCP23017(uint8_t nr, uint8_t function);
@@ -150,6 +151,7 @@ class SuplaConfigESP : public Supla::ActionHandler, public Supla::Element {
   uint8_t getFunctionMCP23017(uint8_t adress);
   uint8_t getNrMCP23017(uint8_t adress);
 #endif
+
   void configModeInit(WiFiMode_t m);
   void clearEEPROM();
 
