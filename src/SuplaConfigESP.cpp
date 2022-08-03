@@ -337,9 +337,11 @@ int SuplaConfigESP::getGpio(int nr, int function) {
     return GPIO_VIRTUAL_RELAY;
   }
 
+#ifdef ARDUINO_ARCH_ESP8266
   if (function == FUNCTION_BUTTON && ConfigManager->get(KEY_ANALOG_BUTTON)->getElement(nr).toInt()) {
     return A0;
   }
+#endif
 
   for (uint8_t gpio = 0; gpio <= OFF_GPIO; gpio++) {
     uint8_t key = KEY_GPIO + gpio;
@@ -698,7 +700,7 @@ bool SuplaConfigESP::checkBusyGpioMCP23017(uint8_t gpio, uint8_t nr, uint8_t fun
 
 uint8_t SuplaConfigESP::getGpioMCP23017(uint8_t nr, uint8_t function) {
   uint8_t key, address;
-  for (uint8_t gpio = 0; gpio <= OFF_GPIO; gpio++) {
+  for (uint8_t gpio = 0; gpio <= OFF_GPIO_EXPENDER; gpio++) {
     key = KEY_GPIO + gpio;
     address = getAdressMCP23017(nr, function);
 
