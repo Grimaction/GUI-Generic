@@ -23,9 +23,9 @@
 #include <SuplaDeviceExtensions.h>
 #include <SuplaDevice.h>
 
+#include "GUI-Generic_Config.h"
 #include "GUIGenericCommonDefined.h"
 #include "GUIGenericCommon.h"
-#include "GUI-Generic_Config.h"
 #include "SuplaTemplateBoard.h"
 
 #include "SuplaConfigESP.h"
@@ -114,7 +114,8 @@
 #ifdef SUPLA_CSE7766
 #include <supla/sensor/CSE_7766.h>
 #endif
-#include <supla/control/pin_status_led.h>
+
+#include "src/control/PinStatusLedGUI.h"
 
 #ifdef SUPLA_RGBW
 #include <supla/control/rgbw_leds.h>

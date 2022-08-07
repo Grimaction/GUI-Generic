@@ -592,7 +592,7 @@ void setup() {
       mpxPercent = new Supla::Sensor::Percentage(Supla::GUI::mpx, 0, Supla::GUI::mpx->getThankHeight() * 0.01);
     }
     else {
-      mpxPercent = new Supla::Sensor::Percentage(Supla::GUI::mpx, 0, 100);
+      mpxPercent = new Supla::Sensor::Percentage(Supla::GUI::mpx, 0, 100.0);
     }
 
     Supla::GUI::addConditionsTurnON(SENSOR_MPX_5XXX_PERCENT, mpxPercent);
