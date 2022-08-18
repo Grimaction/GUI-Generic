@@ -129,7 +129,7 @@
 #include <supla/control/direct_links.h>
 
 #ifdef SUPLA_NTC_10K
-#include <supla/sensor/NTC_10K.h>
+#include "src/sensor/NTC_10K.h"
 #endif
 
 #ifdef SUPLA_MPX_5XXX
@@ -183,7 +183,7 @@
 #include "src/sensor/PMSx003.h"
 
 #ifdef SUPLA_WT32_ETH01_LAN8720
-#include "supla/network/wt32_eth01.h"
+#include <supla/network/wt32_eth01.h>
 #endif
 
 #ifdef SUPLA_ADE7953
@@ -224,7 +224,7 @@ extern std::vector<Supla::Control::Relay *> relay;
 #endif
 
 #if defined(SUPLA_PUSHOVER)
-void addPushover(uint8_t nr);
+void addPushover(uint8_t nr, const String& name, Supla::ChannelElement *client);
 #endif
 
 #if defined(SUPLA_DIRECT_LINKS)
