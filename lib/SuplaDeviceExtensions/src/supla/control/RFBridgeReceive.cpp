@@ -18,29 +18,39 @@
 
 namespace Supla {
 namespace Control {
-RFBridgeReceive::RFBridgeReceive(int receivePin) : RFBridge() {
+RFBridgeReceive::RFBridgeReceive(int receivePin)
+    : RFBridge(), Button(VIRTUAL_PIN_RF_BRIDGE) {
   mySwitch->enableReceive(receivePin);
 }
 
-void RFBridgeReceive::onTimer() {
-  if (mySwitch->available()) {
-    int code = mySwitch->getReceivedValue();
-    if (code == codeON) {
-      Serial.print("Received code ON ");
-      Serial.println(code);
+int RFBridgeReceive::customDigitalRead(int channelNumber, uint8_t pin) {
+  if (pin == VIRTUAL_PIN_RF_BRIDGE) {
+    unsigned long curMillis = millis();
 
-      runAction(Supla::TURN_ON);
-      mySwitch->resetAvailable();
+    if (mySwitch->available()) {
+      int code = mySwitch->getReceivedValue();
+      if (code == codeON) {
+        Serial.print("Received code ON ");
+        Serial.println(code);
+        currentState = HIGH;
+        mySwitch->resetAvailable();
+        debounceTimeMs = curMillis;
+      } else if (code == codeOFF) {
+        Serial.print("Received code OFF ");
+        Serial.println(code);
+        currentState = LOW;
+        mySwitch->resetAvailable();
+      }
     }
 
-    if (code == codeOFF) {
-      Serial.print("Received code OFF ");
-      Serial.println(code);
-
-      runAction(Supla::TURN_OFF);
-      mySwitch->resetAvailable();
+    if (codeON == codeOFF && curMillis - debounceTimeMs > debounceDelayMs) {
+      currentState = LOW;
     }
+
+    return currentState;
   }
+
+  return ::digitalRead(pin);
 }
 
 }  // namespace Control
