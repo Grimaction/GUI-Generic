@@ -14,34 +14,32 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#ifndef _vl_53l0x_h
-#define _vl_53l0x_h
+#ifndef _Wake_On_Lan_Relay_h
+#define _Wake_On_Lan_Relay_h
 
-#include <Adafruit_VL53L0X.h>
 #include <Arduino.h>
+#include <WakeOnLan.h>
+#include <supla/control/virtual_relay.h>
 
-#include "supla/sensor/distance.h"
+#define MAC_ADDRESS_SIZE 18
 
 namespace Supla {
-namespace Sensor {
-class VL_53L0X : public Distance {
+namespace Control {
+
+class WakeOnLanRelay : public VirtualRelay {
  public:
-  VL_53L0X(int8_t address = VL53L0X_I2C_ADDR,
-           Adafruit_VL53L0X::VL53L0X_Sense_config_t vl_config =
-               Adafruit_VL53L0X::VL53L0X_SENSE_DEFAULT);
+  WakeOnLanRelay(const char *MACAddress = nullptr);
 
   void onInit();
-  virtual double getValue();
-  void iterateAlways();
+  void turnOn(_supla_int_t duration = 0);
+  void wakePC();
 
- protected:
-  int8_t address;
-  bool sensorStatus;
-
-  Adafruit_VL53L0X *lox;
+ private:
+  WiFiUDP UDP;
+  WakeOnLan WOL;
+  char MACAddress[MAC_ADDRESS_SIZE];
 };
 
-};  // namespace Sensor
+};  // namespace Control
 };  // namespace Supla
-
 #endif
