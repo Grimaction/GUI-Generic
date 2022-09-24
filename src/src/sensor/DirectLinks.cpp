@@ -26,9 +26,7 @@ void DirectLinksThermometer::sendRequest() {
     JsonObject &root = jsonBuffer.parseObject(getRequest());
 
     if (root.success()) {
-      bool connected = root["connected"];
-
-      if (!connected) {
+      if (!root["connected"].success() || !root["temperature"].success()) {
         Serial.println(F("no connected sensor"));
         retryCount++;
         if (retryCount > 3) {
@@ -65,9 +63,7 @@ void DirectLinksThermHygroMeter::sendRequest() {
     JsonObject &root = jsonBuffer.parseObject(getRequest());
 
     if (root.success()) {
-      bool connected = root["connected"];
-
-      if (!connected) {
+      if (!root["connected"].success() || !root["temperature"].success() || !root["humidity"].success()) {
         Serial.println(F("no connected sensor"));
         retryCount++;
         if (retryCount > 3) {
@@ -110,9 +106,7 @@ void DirectLinksPressMeter::sendRequest() {
     JsonObject &root = jsonBuffer.parseObject(getRequest());
 
     if (root.success()) {
-      bool connected = root["connected"];
-
-      if (!connected) {
+      if (!root["connected"].success() || !root["value"].success()) {
         Serial.println(F("no connected sensor"));
         retryCount++;
         if (retryCount > 3) {
@@ -149,9 +143,7 @@ void DirectLinksOnePhaseElectricityMeter::sendRequest() {
     JsonObject &root = jsonBuffer.parseObject(getRequest());
 
     if (root.success()) {
-      bool connected = root["connected"];
-
-      if (!connected) {
+      if (!root["connected"].success() || !root["phases"].success()) {
         Serial.println(F("no connected"));
         retryCount++;
         if (retryCount > 3) {
@@ -186,9 +178,7 @@ void DirectLinksDistance::sendRequest() {
     JsonObject &root = jsonBuffer.parseObject(getRequest());
 
     if (root.success()) {
-      bool connected = root["connected"];
-
-      if (!connected) {
+      if (!root["connected"].success() || !root["distance"].success()) {
         Serial.println(F("no connected sensor"));
         retryCount++;
         if (retryCount > 3) {
@@ -213,6 +203,46 @@ double DirectLinksDistance::getValue() {
 }
 
 void DirectLinksDistance::onInit() {
+  channel.setNewValue(getValue());
+}
+
+DirectLinksDepth::DirectLinksDepth(const char *url, const char *host, bool isSecured) : DirectLinksConnect(url, host, isSecured) {
+  channel.setType(SUPLA_CHANNELTYPE_DISTANCESENSOR);
+  channel.setDefault(SUPLA_CHANNELFNC_DEPTHSENSOR);
+  channel.setNewValue(DISTANCE_NOT_AVAILABLE);
+};
+
+void DirectLinksDepth::sendRequest() {
+  if (client) {
+    DynamicJsonBuffer jsonBuffer;
+    JsonObject &root = jsonBuffer.parseObject(getRequest());
+
+    if (root.success()) {
+      if (!root["connected"].success() || !root["depth"].success()) {
+        Serial.println(F("no connected sensor"));
+        retryCount++;
+        if (retryCount > 3) {
+          retryCount = 0;
+          depth = DISTANCE_NOT_AVAILABLE;
+        }
+      }
+      else {
+        retryCount = 0;
+        depth = root["depth"];
+      }
+    }
+    else {
+      Serial.println(F("parseObject - failed"));
+      depth = DISTANCE_NOT_AVAILABLE;
+    }
+  }
+}
+
+double DirectLinksDepth::getValue() {
+  return depth;
+}
+
+void DirectLinksDepth::onInit() {
   channel.setNewValue(getValue());
 }
 
